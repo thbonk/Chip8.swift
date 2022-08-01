@@ -131,7 +131,9 @@ extension Chip8 {
    Adds the value kk to the value of register Vx, then stores the result in Vx.
    */
   public func ADD(x: UInt16, kk: UInt8) {
-    V[x.int] = V[x.int] &+ kk
+    let r = x.int
+    
+    V[r] = V[r] &+ kk
     pc += 2
   }
   
@@ -187,8 +189,11 @@ extension Chip8 {
    VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
    */
   public func ADD(x: UInt16, y: UInt16) {
-    V[0xF] = (V[y.int] > (0xFF - V[x.int])).uint8
-    V[x.int] = V[x.int] &+ V[y.int]
+    let r1 = x.int
+    let r2 = y.int
+    
+    V[0xF] = (V[r2] > (0xFF - V[r1])).uint8
+    V[r1] = V[r1] &+ V[r2]
     pc += 2
   }
   
@@ -200,8 +205,11 @@ extension Chip8 {
    stored in Vx.
    */
   public func SUB(x: UInt16, y: UInt16) {
-    V[0xF] = (!(V[y.int] > (V[x.int]))).uint8
-    V[x.int] = V[x.int] &- V[y.int]
+    let r1 = x.int
+    let r2 = y.int
+    
+    V[0xF] = (!(V[r2] > (V[r1]))).uint8
+    V[r1] = V[r1] &- V[r2]
     pc += 2
   }
   
@@ -212,8 +220,10 @@ extension Chip8 {
    If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
    */
   public func SHR(x: UInt16) {
-    V[0x0F] = V[x.int] & 0x01
-    V[x.int] >>= 1
+    let r = x.int
+    
+    V[0x0F] = V[r] & 0x01
+    V[r] >>= 1
     pc += 2
   }
   
@@ -222,8 +232,11 @@ extension Chip8 {
    Set Vx = Vy - Vx, set VF = NOT borrow.
    */
   public func SUBN(x: UInt16, y: UInt16) {
-    V[0x0F] = (V[x.int] <= V[y.int]).uint8
-    V[x.int] = V[y.int] - V[x.int]
+    let r1 = x.int
+    let r2 = y.int
+    
+    V[0x0F] = (V[r1] <= V[r2]).uint8
+    V[r1] = V[r2] &- V[r1]
     pc += 2
   }
   
@@ -234,8 +247,10 @@ extension Chip8 {
    If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
    */
   public func SHL(x: UInt16) {
-    V[0x0F] = V[x.int] >> 7
-    V[x.int] <<= 1
+    let r = x.int
+    
+    V[0x0F] = V[r] >> 7
+    V[r] <<= 1
     pc += 2
   }
   
@@ -295,6 +310,8 @@ extension Chip8 {
    on the Chip-8 screen and sprites.
    */
   public func DRW(x: UInt16, y: UInt16, height: UInt16) {
+    // TODO This method consumes a lot of time and should be optimized
+    
     let xpos = V[x.int].int
     let ypos = V[y.int].int
     let h = height.int
@@ -404,8 +421,10 @@ extension Chip8 {
    The values of I and Vx are added, and the results are stored in I.
    */
   public func ADDi(x: UInt16) {
-    V[0xF] = ((I + V[x.int].uint16) > 0xFFF).uint8
-    I = I &+ V[x.int].uint16
+    let r = x.int
+    
+    V[0xF] = ((I + V[r].uint16) > 0xFFF).uint8
+    I = I &+ V[r].uint16
     pc += 2
   }
   
@@ -417,7 +436,7 @@ extension Chip8 {
    value of Vx. See section 2.4, Display, for more information on the Chip-8 hexadecimal font.
    */
   public func LDf(x: UInt16) {
-    I = V[x.int].uint16 &* 0x05
+    I = V[x.int].uint16 * 0x5
     pc += 2
   }
   
@@ -433,8 +452,8 @@ extension Chip8 {
     let a = I.int
     
     memory[a]     = V[r] / 100
-    memory[a + 1] = (V[r] / 10) % 10
-    memory[a + 2] = (V[r] % 10) % 10
+    memory[a + 1] = (V[r] % 100) / 10
+    memory[a + 2] = V[r] % 10
     
     pc += 2
   }
@@ -452,15 +471,16 @@ extension Chip8 {
    */
   public func LDi(x: UInt16, store: Bool) {
     let a = I.int
+    
     if store {
-      for i in 0..<x.int {
+      for i in 0...x.int {
         memory[a + i] = V[i]
       }
       
       // On the original interpreter, when the operation is done, I = I + X + 1.
       I += x + 1
     } else {
-      for i in 0..<x.int {
+      for i in 0...x.int {
         V[i] = memory[a + i]
       }
       
