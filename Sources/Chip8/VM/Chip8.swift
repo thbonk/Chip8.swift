@@ -63,6 +63,7 @@ public class Chip8 {
   // MARK: - Private Properties
   
   internal var drawFlag: Bool
+  internal var platform: PlatformIntegration?
   internal var debugger: Chip8Debugger?
   internal var debugMode = false
   internal var errorHandler: ErrorHandler?
@@ -89,7 +90,7 @@ public class Chip8 {
   
   // MARK: - Initialization
   
-  public init(debugger: Chip8Debugger? = nil) {
+  public init(platform: PlatformIntegration? = nil, debugger: Chip8Debugger? = nil) {
     stopFlag = false
     opcode = 0
     memory = Array(repeating: 0, count: Chip8.MemorySize)
@@ -113,6 +114,7 @@ public class Chip8 {
     
     key = Array(repeating: false, count: Chip8.Keys)
     
+    self.platform = platform
     self.debugger = debugger
     self.debugger?.vm = self
     self.debugMode = (self.debugger != nil)
@@ -160,6 +162,11 @@ public class Chip8 {
       if self.debugMode {
         debugger?.step(vm: self)
       }
+      
+      guard !self.stopFlag else {
+        return
+      }
+      
       try emulateCycle()
       
       if drawFlag {
@@ -175,20 +182,7 @@ public class Chip8 {
   }
   
   private func drawGraphics() {
-    // TODO CALL OS exit to draw graphics
-    // Draw
-    for y in 0..<Chip8.GfxScreenHeight {
-      var line = ""
-      for x in 0..<Chip8.GfxScreenWidth {
-        if(gfx[(y * 64) + x] == 0) {
-          line = line + "0"
-        } else {
-          line = line + " "
-        }
-      }
-      print(line)
-    }
-    print("\n\n\n")
+    platform?.displayGraphics(vm: self)
   }
   
   private func setKeys() {
