@@ -76,12 +76,27 @@ final class Chip8Spec: QuickSpec {
     
     describe("Exceuting Test ROM") {
       it("Running test ROM is successful") {
+        class Debugger: Chip8Debugger {
+          var previousPC = -2
+          var instructions = 0
+          
+          override func step(vm: Chip8) {
+            instructions += 1
+            if previousPC == vm.pc {
+              vm.stop()
+            }
+            
+            previousPC = vm.pc.int
+          }
+        }
+        
         let url = Bundle.module.url(forResource: "testdata/test_opcode.ch8", withExtension: nil)!
-        let vm = Chip8()
+        let debugger = Debugger()
+        let vm = Chip8(debugger: debugger)
         
         try vm.loadCode(from: url)
-        
         vm.start()
+        
       }
     }
   }
