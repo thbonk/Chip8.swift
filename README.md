@@ -1,3 +1,3 @@
-# Chip8
+# Chip8.swift
 
-A description of this package.
+CHIP-8 Virtual Machine developed in Swift.
