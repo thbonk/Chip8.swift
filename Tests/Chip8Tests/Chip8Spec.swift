@@ -155,8 +155,6 @@ final class Chip8Spec: QuickSpec {
 """
         
         expect(platform.screen).to(equal(expectedScreen))
-        
-        print(expectedScreen)
       }
     }
   }
