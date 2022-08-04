@@ -41,28 +41,28 @@ public class Chip8 {
   
   // MARK: - Public Properties
   
-  public internal(set) var stopFlag: Bool
+  public internal(set) var stopFlag: Bool!
   
-  public internal(set) var opcode: UInt16
-  public internal(set) var memory: [UInt8]
-  public internal(set) var V: [UInt8]
-  public internal(set) var I: UInt16
-  public internal(set) var pc: UInt16
+  public internal(set) var opcode: UInt16!
+  public internal(set) var memory: [UInt8]!
+  public internal(set) var V: [UInt8]!
+  public internal(set) var I: UInt16!
+  public internal(set) var pc: UInt16!
   
-  public internal(set) var gfx: [UInt8]
+  public internal(set) var gfx: [UInt8]!
   
-  public internal(set) var delayTimer: UInt8
-  public internal(set) var soundTimer: UInt8
+  public internal(set) var delayTimer: UInt8!
+  public internal(set) var soundTimer: UInt8!
   
-  public internal(set) var stack: [UInt16]
-  public internal(set) var sp: UInt16
+  public internal(set) var stack: [UInt16]!
+  public internal(set) var sp: UInt16!
   
-  public internal(set) var key: [Bool]
+  public internal(set) var key: [Bool]!
   
   
   // MARK: - Private Properties
   
-  internal var drawFlag: Bool
+  internal var drawFlag: Bool!
   internal var platform: PlatformIntegration?
   internal var debugger: Chip8Debugger?
   internal var debugMode = false
@@ -91,6 +91,15 @@ public class Chip8 {
   // MARK: - Initialization
   
   public init(platform: PlatformIntegration? = nil, debugger: Chip8Debugger? = nil) {
+    initializeVirtualMachine()
+    
+    self.platform = platform
+    self.debugger = debugger
+    self.debugger?.vm = self
+    self.debugMode = (self.debugger != nil)
+  }
+  
+  private func initializeVirtualMachine() {
     stopFlag = false
     opcode = 0
     memory = Array(repeating: 0, count: Chip8.MemorySize)
@@ -113,15 +122,14 @@ public class Chip8 {
     }
     
     key = Array(repeating: false, count: Chip8.Keys)
-    
-    self.platform = platform
-    self.debugger = debugger
-    self.debugger?.vm = self
-    self.debugMode = (self.debugger != nil)
   }
   
   
   // MARK: - Public Methods
+  
+  public func resetVirtualMachine() {
+    initializeVirtualMachine()
+  }
   
   public func loadCode(from url: URL) throws {
     try loadCode(data: try Data(contentsOf: url))
