@@ -36,7 +36,7 @@ public class Chip8 {
   public static let StackSize = 16
   public static let RamStartAddress = 0x200
   public static let MaxRomSize = MemorySize - RamStartAddress
-  public static let Keys = 16
+  public static let Keys = 17
   
   
   // MARK: - Public Properties
@@ -154,6 +154,13 @@ public class Chip8 {
     self.stopFlag = true
   }
   
+  public func setKeysDown(keys: Set<Int>) {
+    key = Array(repeating: false, count: Chip8.Keys)
+    keys.forEach { code in
+      key[code] = true
+    }
+  }
+  
   
   // MARK: - Private Methods
   
@@ -186,7 +193,7 @@ public class Chip8 {
   }
   
   private func setKeys() {
-    // TODO CALL OS exit to set pressed keys
+    platform?.setKeys(vm: self)
   }
   
   private func updateTimers() {

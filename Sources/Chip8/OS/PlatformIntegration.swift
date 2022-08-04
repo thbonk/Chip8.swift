@@ -22,4 +22,5 @@ import Foundation
 
 public protocol PlatformIntegration {
   func displayGraphics(vm: Chip8)
+  func setKeys(vm: Chip8)
 }

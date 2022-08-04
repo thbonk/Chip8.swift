@@ -108,6 +108,10 @@ final class Chip8Spec: QuickSpec {
               screen = screen + line + "\n"
             }
           }
+          
+          func setKeys(vm: Chip8) {
+            
+          }
         }
         
         let url = Bundle.module.url(forResource: "testdata/test_opcode.ch8", withExtension: nil)!
