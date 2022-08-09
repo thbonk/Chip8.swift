@@ -155,7 +155,7 @@ public class Chip8 {
     
     while !self.stopFlag {
       emulate()
-      Thread.sleep(forTimeInterval: 0.0001)
+      Thread.sleep(forTimeInterval: 0.001)
     }
   }
   
